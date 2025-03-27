@@ -103,3 +103,46 @@ inner join paises pa on d.director_nacionalidad = pa.pais_id;
 select g.genero_nombre, pg.pelicula_id
 from generos g -- Acá le digo a la query que tabla generos es la tabla a la izquierda
 left join peliculas_generos pg on g.genero_id = pg.genero_id;
+
+-- INSERCIONES PARA PROBAR JOINS
+-- Insertamos un director que no tiene películas 
+insert ignore into directores (director_nombre, director_nacionalidad) values
+('Director sin peliculas', 1);
+
+-- Insertamos otro género sin peliculas asociadas 
+insert ignore into generos (genero_nombre) values ("Parodia");
+
+-- Insertamos otro país sin películas producidas 
+insert ignore into paises (pais_nombre, pais_capital) values ("Noruega", "Oslo");
+
+-- LEFT JOIN para ver qué directores existen y si hay peliculas dirigidas por ellos 
+select d.director_nombre, p.pelicula_id, p.pelicula_titulo
+from directores d  -- A la izquierda se encuentra la tabla de directores 
+left join peliculas p on d.director_id = p.pelicula_director; -- A la derecha se encuentra la tabla peliculas
+
+-- RIGHT JOIN para mostrar todos los paises y si tienen peliculas hechas
+select p.pais_nombre, p1pelicula_id, p1.pelicula_titulo
+from peliculas p1 -- A la izquierda se encuentra la tabla paises 
+right join paises p on p.pais_id = p1.peliculas_pais -- A la derecha se encuentra la tabla peliculas
+
+-- FULL OUTER JOIN
+-- Mostramos todos los directores y todas las peliculas, incluyendo los que no han dirigido nada y peliculas sin director
+select d.director_nombre, p.pelicula_id, p.pelicula_titulo
+from directores d
+left join peliculas p on d.director_id = p.pelicula_director
+union 
+select d.director_nombre, p.pelicula_id, p.pelicula_titulo
+from directores d
+right join peliculas p on d.director_id = p.pelicula_director
+where d.director_id is null; 
+
+select d.director_nombre, p.pelicula_id, p.pelicula_titulo
+from directores d
+inner join peliculas p on d.director_id = p.pelicula_director;
+
+-- QUERIES DENTRO DE QUERIES (SUBQUERY)
+-- Peliculas con un presupuesto mayor al promedio 
+select pelicula_titulo, pelicula_duracion, pelicula_anio, pelicula_presupuesto 
+from peliculas p2
+where pelicula_presupuesto > (select AVG(pelicula_presupuesto) as promedio_presupuesto
+    from peliculas p); -- El resultado de la segunda query, es tomado como referencia para la query principal

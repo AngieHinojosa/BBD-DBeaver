@@ -146,3 +146,33 @@ select pelicula_titulo, pelicula_duracion, pelicula_anio, pelicula_presupuesto
 from peliculas p2
 where pelicula_presupuesto > (select AVG(pelicula_presupuesto) as promedio_presupuesto
     from peliculas p); -- El resultado de la segunda query, es tomado como referencia para la query principal
+
+-- Peliculas dirigidas por directores estadounidenses
+select pelicula_titulo -- Esta query indica todas las peliculas que tengan un direct
+from peliculas 
+where pelicula_director in (
+    select director_id
+    from directores d where d.director_nacionalidad = select pais_id
+                                        from paises
+                                        where pais_nombre like 'Estados Unidos')
+);
+
+-- SUBQUERIES EN EL select
+-- Obtener actores de una pelicula
+select p.pelicula_titulo,
+	(select count(*) from reparto r where p.pelicula_id = r.pelicula_id) as cantidad_actores
+	from peliculas p;
+
+-- SUBQUERY EN EL FROM
+-- Peliculas que tienen una duración mayor al promedio
+create view peliculas_mayor_duracion as
+select p.pelicula_titulo, p.pelicula_duracion
+from peliculas p,
+	(select avg(pelicula_duracion) as promedio_duracion
+	from peliculas) as duracion
+where p.pelicula_duracion > duracion.promedio_duracion ;
+
+-- LAS VISTAS son consultas almacenadas como tablas virtuales
+select * 
+from peliculas_mayor_duracion;
+	
